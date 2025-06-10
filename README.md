@@ -1,3 +1,7 @@
+## 📅 Sprint Plan
+
+[📊 View Sprint Gantt Chart (Google Sheets)](https://docs.google.com/spreadsheets/d/16sbqCc0Az1mOyXDcQ9MWzRNRgycnX6vhvv2rRZnd30o/edit?usp=sharing)
+
 # Volleyball Referee Hand Signals Detection
 
 A web application that uses computer vision and machine learning to detect and interpret volleyball referee hand signals in real-time.
