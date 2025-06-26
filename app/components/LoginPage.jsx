@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import { useApp } from './AppContext';
+import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
-  const { setUser, setCurrentPage } = useApp();
+  const { setUser } = useApp();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -12,6 +13,7 @@ const LoginPage = () => {
     name: '',
     role: 'viewer'
   });
+  const router = useRouter();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,7 +23,7 @@ const LoginPage = () => {
       role: formData.role
     };
     setUser(user);
-    setCurrentPage('home');
+    router.push('/');
   };
 
   return (
@@ -112,7 +114,7 @@ const LoginPage = () => {
               <button
                 onClick={() => {
                   setUser({ name: 'Demo Viewer', email: 'viewer@demo.com', role: 'viewer' });
-                  setCurrentPage('home');
+                  router.push('/');
                 }}
                 className="py-2 px-4 bg-gray-700 hover:bg-gray-600 rounded transition-colors text-sm"
               >
@@ -121,7 +123,7 @@ const LoginPage = () => {
               <button
                 onClick={() => {
                   setUser({ name: 'Demo Admin', email: 'admin@demo.com', role: 'admin' });
-                  setCurrentPage('home');
+                  router.push('/');
                 }}
                 className="py-2 px-4 bg-emerald-600 hover:bg-emerald-700 rounded transition-colors text-sm"
               >

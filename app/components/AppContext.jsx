@@ -13,7 +13,6 @@ export const useApp = () => {
 };
 
 export const AppProvider = ({ children }) => {
-  const [currentPage, setCurrentPage] = useState('home');
   const [gestureDetection, setGestureDetection] = useState(false);
   const [currentGesture, setCurrentGesture] = useState('No gesture detected');
   const [matches] = useState([
@@ -31,8 +30,6 @@ export const AppProvider = ({ children }) => {
   });
 
   const contextValue = {
-    currentPage,
-    setCurrentPage,
     gestureDetection,
     setGestureDetection,
     currentGesture,

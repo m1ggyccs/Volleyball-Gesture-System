@@ -47,6 +47,34 @@ const ObserverPage = () => {
     <div className="pt-16 min-h-screen bg-black text-white">
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-4xl font-bold mb-4 text-emerald-400">Game Observer</h1>
+        {/* Video Row: Match and Gesture Detection */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Match Video */}
+          <div className="bg-gray-900 rounded-lg p-4 flex flex-col items-center justify-center">
+            <div className="w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
+              <iframe
+                src={`https://www.youtube.com/embed/${currentMatch.videoId}?autoplay=0&rel=0&modestbranding=1`}
+                title="Match Video"
+                className="w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+            <div className="mt-2 text-center">
+              <span className="text-white font-semibold">Match Video</span>
+            </div>
+          </div>
+          {/* Gesture Detection Webcam Feed (Placeholder) */}
+          <div className="bg-gray-900 rounded-lg p-4 flex flex-col items-center justify-center">
+            <div className="w-full aspect-video bg-black rounded-lg flex items-center justify-center">
+              <span className="text-gray-500 text-lg">Webcam Feed (Gesture Detection)</span>
+            </div>
+            <div className="mt-2 text-center">
+              <span className="text-white font-semibold">Gesture Detection</span>
+            </div>
+          </div>
+        </div>
         <div className="bg-gray-900 rounded-lg p-6 mb-8">
           <div className="mb-4">
             <div className="text-2xl font-bold mb-2">{currentMatch.title}</div>

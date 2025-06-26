@@ -1,10 +1,10 @@
 "use client";
 import React from 'react';
 import { Monitor, Hand, BarChart } from 'lucide-react';
-import { useApp } from './AppContext';
+import { useRouter } from 'next/navigation';
 
 const HomePage = () => {
-  const { setCurrentPage } = useApp();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen">
@@ -18,7 +18,7 @@ const HomePage = () => {
             The Future of Volleyball Streaming
           </p>
           <button
-            onClick={() => setCurrentPage('watch')}
+            onClick={() => router.push('/watch')}
             className="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-lg font-semibold transition-colors"
           >
             Watch Now

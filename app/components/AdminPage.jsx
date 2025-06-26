@@ -43,33 +43,7 @@ const AdminPage = () => {
           <p className="text-gray-400">Manage matches, gestures, and user access</p>
         </div>
         {/* Video Row: Match and Gesture Detection */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Match Video */}
-          <div className="bg-gray-900 rounded-lg p-4 flex flex-col items-center justify-center">
-            <div className="w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
-              <iframe
-                src={`https://www.youtube.com/embed/${form.videoId}?autoplay=0&rel=0&modestbranding=1`}
-                title="Match Video"
-                className="w-full h-full"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
-            <div className="mt-2 text-center">
-              <span className="text-white font-semibold">Match Video</span>
-            </div>
-          </div>
-          {/* Gesture Detection Webcam Feed (Placeholder) */}
-          <div className="bg-gray-900 rounded-lg p-4 flex flex-col items-center justify-center">
-            <div className="w-full aspect-video bg-black rounded-lg flex items-center justify-center">
-              <span className="text-gray-500 text-lg">Webcam Feed (Gesture Detection)</span>
-            </div>
-            <div className="mt-2 text-center">
-              <span className="text-white font-semibold">Gesture Detection</span>
-            </div>
-          </div>
-        </div>
+        {/* Removed: Match Video and Gesture Detection panels, now on observer page */}
         {/* Side-by-side Match and Gesture Detection Forms */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Match Details */}
