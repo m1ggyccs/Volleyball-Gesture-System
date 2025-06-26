@@ -21,6 +21,14 @@ export const AppProvider = ({ children }) => {
     { id: 2, title: 'USA vs Italy - Olympic Qualifier', viewers: 8932, live: true },
     { id: 3, title: 'Poland vs Russia - European Championship', viewers: 6421, live: false }
   ]);
+  // Single current match for display and admin editing
+  const [currentMatch, setCurrentMatch] = useState({
+    videoId: 'dQw4w9WgXcQ',
+    title: 'Brazil vs Japan - FIVB World Championship',
+    duration: '2:15:30',
+    viewers: 1246,
+    live: true
+  });
 
   const contextValue = {
     currentPage,
@@ -29,7 +37,9 @@ export const AppProvider = ({ children }) => {
     setGestureDetection,
     currentGesture,
     setCurrentGesture,
-    matches
+    matches,
+    currentMatch,
+    setCurrentMatch
   };
 
   return (

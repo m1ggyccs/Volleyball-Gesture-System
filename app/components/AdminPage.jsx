@@ -5,6 +5,31 @@ import { Upload, Settings, Users, ChevronDown } from 'lucide-react';
 import { useApp } from './AppContext';
 
 const AdminPage = () => {
+  const { currentMatch, setCurrentMatch } = useApp();
+  const [form, setForm] = React.useState({
+    videoId: currentMatch.videoId,
+    title: currentMatch.title,
+    duration: currentMatch.duration,
+    viewers: currentMatch.viewers,
+    live: currentMatch.live
+  });
+  const [saved, setSaved] = React.useState(false);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+    setSaved(false);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setCurrentMatch({ ...form });
+    setSaved(true);
+  };
+
   return (
     <div className="pt-16 min-h-screen bg-black">
       <div className="max-w-7xl mx-auto p-6">
@@ -14,47 +39,77 @@ const AdminPage = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Upload Match */}
+          {/* Edit Current Match */}
           <div className="bg-gray-900 rounded-lg p-6">
             <div className="flex items-center space-x-2 mb-6">
               <Upload className="w-6 h-6 text-emerald-400" />
-              <h2 className="text-2xl font-bold text-white">Upload Match</h2>
+              <h2 className="text-2xl font-bold text-white">Edit Current Match</h2>
             </div>
-            
-            <div className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-gray-400 mb-2">YouTube Video ID</label>
+                <input
+                  type="text"
+                  name="videoId"
+                  value={form.videoId}
+                  onChange={handleChange}
+                  placeholder="e.g. dQw4w9WgXcQ"
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+                  required
+                />
+              </div>
               <div>
                 <label className="block text-gray-400 mb-2">Match Title</label>
                 <input
                   type="text"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
                   placeholder="Championship Finals"
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+                  required
                 />
               </div>
-              
               <div>
-                <label className="block text-gray-400 mb-2">Video File</label>
-                <div className="border-2 border-dashed border-gray-700 rounded-lg p-4">
-                  <button className="flex items-center space-x-2 text-gray-400">
-                    <span className="px-3 py-1 bg-gray-700 rounded text-sm">Browse...</span>
-                    <span>No file selected.</span>
-                  </button>
-                </div>
+                <label className="block text-gray-400 mb-2">Duration</label>
+                <input
+                  type="text"
+                  name="duration"
+                  value={form.duration}
+                  onChange={handleChange}
+                  placeholder="e.g. 2:15:30"
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+                  required
+                />
               </div>
-              
               <div>
-                <label className="block text-gray-400 mb-2">Thumbnail</label>
-                <div className="border-2 border-dashed border-gray-700 rounded-lg p-4">
-                  <button className="flex items-center space-x-2 text-gray-400">
-                    <span className="px-3 py-1 bg-gray-700 rounded text-sm">Browse...</span>
-                    <span>No file selected.</span>
-                  </button>
-                </div>
+                <label className="block text-gray-400 mb-2">Viewers</label>
+                <input
+                  type="number"
+                  name="viewers"
+                  value={form.viewers}
+                  onChange={handleChange}
+                  min="0"
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+                  required
+                />
               </div>
-              
-              <button className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-medium transition-colors">
-                Upload Match
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="live"
+                  checked={form.live}
+                  onChange={handleChange}
+                  className="form-checkbox h-5 w-5 text-emerald-500"
+                  id="liveCheckbox"
+                />
+                <label htmlFor="liveCheckbox" className="text-gray-400">Live</label>
+              </div>
+              <button type="submit" className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-medium transition-colors">
+                Save Match
               </button>
-            </div>
+              {saved && <div className="text-green-400 text-center mt-2">Match updated!</div>}
+            </form>
           </div>
 
           {/* Gesture Configuration */}

@@ -4,17 +4,8 @@ import { Tv, Hand, Camera, BarChart } from 'lucide-react';
 import { useApp } from './AppContext';
 
 const WatchPage = () => {
-  const { gestureDetection, setGestureDetection, currentGesture, setCurrentGesture } = useApp();
-  const [selectedVideo, setSelectedVideo] = useState('dQw4w9WgXcQ');
+  const { gestureDetection, setGestureDetection, currentGesture, setCurrentGesture, currentMatch } = useApp();
   const [focus, setFocus] = useState('match'); // 'match' or 'gesture'
-
-  const volleyballVideos = [
-    { id: 'dQw4w9WgXcQ', title: 'Brazil vs Japan - FIVB World Championship', duration: '2:15:30' },
-    { id: '9bZkp7q19f0', title: 'USA vs Italy - Olympic Qualifier', duration: '1:45:20' },
-    { id: 'kJQP7kiw5Fk', title: 'Poland vs Russia - European Championship', duration: '1:58:45' },
-    { id: 'ZZ5LpwO-An4', title: 'China vs Serbia - World Cup', duration: '2:05:15' },
-    { id: 'y6120QOlsfU', title: 'Netherlands vs Turkey - Nations League', duration: '1:52:30' }
-  ];
 
   const toggleDetection = () => {
     setGestureDetection(!gestureDetection);
@@ -25,10 +16,6 @@ const WatchPage = () => {
     } else {
       setCurrentGesture('No gesture detected');
     }
-  };
-
-  const getCurrentVideo = () => {
-    return volleyballVideos.find(video => video.id === selectedVideo) || volleyballVideos[0];
   };
 
   return (
@@ -56,27 +43,10 @@ const WatchPage = () => {
             {/* Main Content Area */}
             {focus === 'match' ? (
               <>
-                {/* Video Selector */}
-                <div className="bg-gray-900 rounded-lg p-4 mb-4">
-                  <div className="flex items-center space-x-4">
-                    <label className="text-white font-medium">Select Match:</label>
-                    <select
-                      value={selectedVideo}
-                      onChange={(e) => setSelectedVideo(e.target.value)}
-                      className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                    >
-                      {volleyballVideos.map((video) => (
-                        <option key={video.id} value={video.id}>
-                          {video.title} ({video.duration})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
                 {/* YouTube Video Player */}
                 <div className="bg-gray-900 rounded-lg aspect-video relative overflow-hidden mb-4">
                   <iframe
-                    src={`https://www.youtube.com/embed/${selectedVideo}?autoplay=0&rel=0&modestbranding=1`}
+                    src={`https://www.youtube.com/embed/${currentMatch.videoId}?autoplay=0&rel=0&modestbranding=1`}
                     title="Volleyball Match"
                     className="w-full h-full"
                     frameBorder="0"
@@ -88,8 +58,8 @@ const WatchPage = () => {
                 <div className="bg-gray-900 rounded-lg p-6">
                   <div className="flex justify-between items-center">
                     <div className="text-left">
-                      <div className="text-2xl font-bold text-white">{getCurrentVideo().title}</div>
-                      <div className="text-gray-400 text-sm">Duration: {getCurrentVideo().duration}</div>
+                      <div className="text-2xl font-bold text-white">{currentMatch.title}</div>
+                      <div className="text-gray-400 text-sm">Duration: {currentMatch.duration}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-gray-400 text-sm">LIVE STREAM</div>
@@ -99,7 +69,7 @@ const WatchPage = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-emerald-400">1,246</div>
+                      <div className="text-2xl font-bold text-emerald-400">{currentMatch.viewers}</div>
                       <div className="text-gray-400 text-sm">Viewers</div>
                     </div>
                   </div>
@@ -194,7 +164,7 @@ const WatchPage = () => {
                 {/* Compact YouTube Video */}
                 <div className="bg-black rounded-lg aspect-video flex items-center justify-center mb-4 overflow-hidden">
                   <iframe
-                    src={`https://www.youtube.com/embed/${selectedVideo}?autoplay=0&rel=0&modestbranding=1`}
+                    src={`https://www.youtube.com/embed/${currentMatch.videoId}?autoplay=0&rel=0&modestbranding=1`}
                     title="Compact Volleyball Match"
                     className="w-full h-full"
                     frameBorder="0"
@@ -204,8 +174,8 @@ const WatchPage = () => {
                 </div>
                 {/* Match Info */}
                 <div className="text-center mb-2">
-                  <div className="text-lg font-bold text-white">{getCurrentVideo().title}</div>
-                  <div className="text-gray-400 text-sm">Duration: {getCurrentVideo().duration}</div>
+                  <div className="text-lg font-bold text-white">{currentMatch.title}</div>
+                  <div className="text-gray-400 text-sm">Duration: {currentMatch.duration}</div>
                 </div>
                 <div className="flex items-center justify-center space-x-2">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
