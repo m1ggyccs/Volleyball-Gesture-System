@@ -1,14 +1,16 @@
 "use client";
 import React from 'react';
-import { useApp } from './AppContext';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
-  const { currentPage, setCurrentPage } = useApp();
+  const pathname = usePathname();
 
   const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'watch', label: 'Watch' },
-    { id: 'admin', label: 'Admin' }
+    { href: '/', label: 'Home' },
+    { href: '/watch', label: 'Watch' },
+    { href: '/admin', label: 'Admin' },
+    { href: '/observer', label: 'Observer' }
   ];
 
   return (
@@ -23,17 +25,17 @@ const Navbar = () => {
           {/* Navigation */}
           <div className="flex items-center space-x-8">
             {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setCurrentPage(item.id)}
+              <Link
+                key={item.href}
+                href={item.href}
                 className={`text-lg transition-colors ${
-                  currentPage === item.id 
-                    ? 'text-emerald-400 border-b-2 border-emerald-400 pb-1' 
+                  pathname === item.href
+                    ? 'text-emerald-400 border-b-2 border-emerald-400 pb-1'
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
                 {item.label}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
