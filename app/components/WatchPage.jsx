@@ -1,11 +1,26 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tv, Hand, Camera, BarChart } from 'lucide-react';
 import { useApp } from './AppContext';
 
 const WatchPage = () => {
   const { gestureDetection, setGestureDetection, currentGesture, setCurrentGesture, currentMatch } = useApp();
   const [focus, setFocus] = useState('match'); // 'match' or 'gesture'
+
+  useEffect(() => {
+    if (!gestureDetection) return;
+    const ws = new window.WebSocket('ws://localhost:8000/ws/gesture');
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setCurrentGesture(data.gesture || 'No gesture detected');
+      } catch (e) {
+        setCurrentGesture('No gesture detected');
+      }
+    };
+    ws.onerror = () => setCurrentGesture('No gesture detected');
+    return () => ws.close();
+  }, [gestureDetection, setCurrentGesture]);
 
   const toggleDetection = () => {
     setGestureDetection(!gestureDetection);
