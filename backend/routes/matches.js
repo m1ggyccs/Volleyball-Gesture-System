@@ -69,6 +69,12 @@ router.put('/:matchId', async (req, res) => {
       return res.status(404).json({ message: 'Match not found' });
     }
     
+    // Emit real-time update to all clients in the match room
+    const io = req.app.get('io');
+    if (io) {
+      io.to(match.matchId).emit('match-data', match);
+    }
+    
     res.json(match);
   } catch (error) {
     res.status(400).json({ message: error.message });

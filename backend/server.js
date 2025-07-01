@@ -81,6 +81,7 @@ io.on('connection', (socket) => {
       if (match) {
         // Broadcast to all clients in the match room
         io.to(matchId).emit('scores-updated', { scoreA, scoreB });
+        io.to(matchId).emit('match-data', match);
       }
     } catch (error) {
       console.error('Error updating scores:', error);
@@ -122,6 +123,7 @@ io.on('connection', (socket) => {
         event: newEvent,
         updatedMatch: savedMatch
       });
+      io.to(matchId).emit('match-data', savedMatch);
     } catch (error) {
       console.error('Error adding event:', error);
       socket.emit('error', { message: 'Failed to add event' });
@@ -157,6 +159,7 @@ io.on('connection', (socket) => {
         removedEvent,
         updatedMatch: savedMatch
       });
+      io.to(matchId).emit('match-data', savedMatch);
     } catch (error) {
       console.error('Error undoing event:', error);
       socket.emit('error', { message: 'Failed to undo event' });
@@ -183,6 +186,7 @@ io.on('connection', (socket) => {
       if (match) {
         // Broadcast to all clients in the match room
         io.to(matchId).emit('match-reset', match);
+        io.to(matchId).emit('match-data', match);
       }
     } catch (error) {
       console.error('Error resetting match:', error);
@@ -217,6 +221,7 @@ io.on('connection', (socket) => {
       if (match) {
         // Broadcast to all clients in the match room
         io.to(matchId).emit('auto-scoring-toggled', { enabled });
+        io.to(matchId).emit('match-data', match);
       }
     } catch (error) {
       console.error('Error toggling auto-scoring:', error);
@@ -246,6 +251,8 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
+
+app.set('io', io);
 
 const PORT = process.env.PORT || 3001;
 
