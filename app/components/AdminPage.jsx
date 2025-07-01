@@ -3,6 +3,7 @@
 import React from 'react';
 import { Upload, Settings, Users, ChevronDown, Camera } from 'lucide-react';
 import { useApp } from './AppContext';
+import { apiService } from '../services/api';
 
 const AdminPage = () => {
   const { currentMatch, setCurrentMatch, gestureDetection, setGestureDetection } = useApp();
@@ -17,6 +18,7 @@ const AdminPage = () => {
     setNumber: currentMatch.setNumber || 1
   });
   const [saved, setSaved] = React.useState(false);
+  const [error, setError] = React.useState('');
 
   // User management stats (replace with real data source if available)
   const totalUsers = 0;
@@ -31,12 +33,21 @@ const AdminPage = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
     setSaved(false);
+    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setCurrentMatch({ ...form });
-    setSaved(true);
+    setSaved(false);
+    setError('');
+    try {
+      // Sync with backend
+      const updatedMatch = await apiService.updateMatch(currentMatch.matchId, form);
+      setCurrentMatch(updatedMatch);
+      setSaved(true);
+    } catch (err) {
+      setError('Failed to save match: ' + (err.message || err));
+    }
   };
 
   return (
@@ -152,6 +163,7 @@ const AdminPage = () => {
             Save Match
           </button>
           {saved && <div className="text-emerald-400 mt-2 text-center">Match saved!</div>}
+          {error && <div className="text-red-400 mt-2 text-center">{error}</div>}
         </form>
         <div>
           <div className="bg-gray-900 rounded-lg p-6 mb-8">
