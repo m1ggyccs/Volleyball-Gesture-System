@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useApp } from "../components/AppContext";
+import { Camera } from "lucide-react";
 
 const refereeCalls = [
   "Point Left",
@@ -13,7 +14,7 @@ const refereeCalls = [
 ];
 
 const ObserverPage = () => {
-  const { currentMatch, setCurrentMatch } = useApp();
+  const { currentMatch, setCurrentMatch, gestureDetection, setGestureDetection } = useApp();
   const [scoreA, setScoreA] = useState(currentMatch.scoreA || 0);
   const [scoreB, setScoreB] = useState(currentMatch.scoreB || 0);
   const [whoScored, setWhoScored] = useState("");
@@ -68,7 +69,27 @@ const ObserverPage = () => {
           {/* Gesture Detection Webcam Feed (Placeholder) */}
           <div className="bg-gray-900 rounded-lg p-4 flex flex-col items-center justify-center">
             <div className="w-full aspect-video bg-black rounded-lg flex items-center justify-center">
-              <span className="text-gray-500 text-lg">Webcam Feed (Gesture Detection)</span>
+              <div className="text-center w-full">
+                <Camera className="w-16 h-16 text-gray-600 mx-auto mb-2" />
+                <span className="text-gray-500 text-lg">Webcam Feed</span>
+              </div>
+            </div>
+            {/* Controls */}
+            <div className="flex space-x-2 my-4 w-full">
+              <button
+                onClick={() => setGestureDetection(!gestureDetection)}
+                className="flex-1 py-3 px-8 bg-emerald-500 hover:bg-emerald-600 rounded font-medium transition-colors text-lg"
+              >
+                {gestureDetection ? 'Stop Detection' : 'Start Detection'}
+              </button>
+              <button className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded transition-colors text-lg">
+                Settings
+              </button>
+            </div>
+            {/* Status */}
+            <div className="flex items-center space-x-2 mb-4">
+              <div className={`w-3 h-3 rounded-full ${gestureDetection ? 'bg-emerald-400' : 'bg-red-400'}`}></div>
+              <span className="text-lg text-gray-400">{gestureDetection ? 'Active' : 'Inactive'}</span>
             </div>
             <div className="mt-2 text-center">
               <span className="text-white font-semibold">Gesture Detection</span>

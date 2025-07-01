@@ -1,11 +1,11 @@
 "use client";
 
 import React from 'react';
-import { Upload, Settings, Users, ChevronDown } from 'lucide-react';
+import { Upload, Settings, Users, ChevronDown, Camera } from 'lucide-react';
 import { useApp } from './AppContext';
 
 const AdminPage = () => {
-  const { currentMatch, setCurrentMatch } = useApp();
+  const { currentMatch, setCurrentMatch, gestureDetection, setGestureDetection } = useApp();
   const [form, setForm] = React.useState({
     videoId: currentMatch.videoId,
     title: currentMatch.title,
@@ -183,36 +183,29 @@ const AdminPage = () => {
               <Settings className="w-6 h-6 text-emerald-400" />
               <h2 className="text-2xl font-bold text-white">Gesture Detection</h2>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-gray-400 mb-2">Gesture Name</label>
-                <input
-                  type="text"
-                  placeholder="Point Left"
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                />
+            {/* Webcam Feed Placeholder */}
+            <div className="bg-black rounded-lg aspect-video flex items-center justify-center w-full max-w-xl mb-6 mx-auto">
+              <div className="text-center w-full">
+                <Camera className="w-16 h-16 text-gray-600 mx-auto mb-2" />
+                <span className="text-gray-500 text-lg">Webcam Feed</span>
               </div>
-              <div>
-                <label className="block text-gray-400 mb-2">Gesture Type</label>
-                <div className="relative">
-                  <select className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none appearance-none">
-                    <option>Static</option>
-                    <option>Dynamic</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-3 w-5 h-5 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-gray-400 mb-2">Trigger Animation</label>
-                <input
-                  type="text"
-                  placeholder="fadeIn"
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-              <button className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-medium transition-colors">
-                Save Gesture
+            </div>
+            {/* Controls */}
+            <div className="flex space-x-2 my-4 w-full">
+              <button
+                onClick={() => setGestureDetection(!gestureDetection)}
+                className="flex-1 py-3 px-8 bg-emerald-500 hover:bg-emerald-600 rounded font-medium transition-colors text-lg"
+              >
+                {gestureDetection ? 'Stop Detection' : 'Start Detection'}
               </button>
+              <button className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded transition-colors text-lg">
+                Settings
+              </button>
+            </div>
+            {/* Status */}
+            <div className="flex items-center space-x-2 mb-4">
+              <div className={`w-3 h-3 rounded-full ${gestureDetection ? 'bg-emerald-400' : 'bg-red-400'}`}></div>
+              <span className="text-lg text-gray-400">{gestureDetection ? 'Active' : 'Inactive'}</span>
             </div>
           </div>
         </div>
