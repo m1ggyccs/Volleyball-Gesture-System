@@ -34,6 +34,8 @@ const ObserverPage = () => {
   const [lastProcessedGesture, setLastProcessedGesture] = useState("");
   const [autoScoreNotification, setAutoScoreNotification] = useState("");
   const [autoScoringEnabled, setAutoScoringEnabled] = useState(true);
+  const [gestureConfidence, setGestureConfidence] = useState(0.0);
+  const [webcamError, setWebcamError] = useState(null);
 
   // Load auto-scoring preference from localStorage on component mount
   useEffect(() => {
@@ -69,7 +71,7 @@ const ObserverPage = () => {
         const data = JSON.parse(event.data);
         const gesture = data.gesture || 'No gesture detected';
         setCurrentGesture(gesture);
-        
+        setGestureConfidence(typeof data.confidence === 'number' ? data.confidence : 0.0);
         // Process automatic scoring for point gestures
         if (gesture !== lastProcessedGesture && autoScoringEnabled) {
           handleAutomaticScoring(gesture);
@@ -77,10 +79,14 @@ const ObserverPage = () => {
         }
       } catch (e) {
         setCurrentGesture('No gesture detected');
+        setGestureConfidence(0.0);
       }
     };
     
-    ws.onerror = () => setCurrentGesture('No gesture detected');
+    ws.onerror = () => {
+      setCurrentGesture('No gesture detected');
+      setGestureConfidence(0.0);
+    };
     
     return () => ws.close();
   }, [gestureDetection, setCurrentGesture, lastProcessedGesture]);
@@ -273,19 +279,28 @@ const ObserverPage = () => {
             {/* Status Bar */}
             <div className={`w-full h-2 rounded-t-lg mb-4 ${gestureDetection ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
             <h2 className="text-2xl font-bold text-white mb-4">Gesture Detection</h2>
-            <div className={`w-full aspect-video rounded-lg flex items-center justify-center mb-4 ${gestureDetection ? 'border-4 border-emerald-500' : ''} bg-black`}>
-              <div className="text-center w-full">
-                {webcamLoading ? (
-                  <Loader2 className="w-12 h-12 text-emerald-400 animate-spin mx-auto mb-2" title="Loading webcam..." />
-                ) : gestureDetection ? (
-                  <Camera className="w-16 h-16 text-emerald-400 mx-auto mb-2 animate-pulse" title="Webcam Active" />
-                ) : (
-                  <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 1.2 }}>
-                    <Camera className="w-16 h-16 text-gray-600 mx-auto mb-2" title="Webcam Inactive" />
-                  </motion.div>
-                )}
-                <span className="text-gray-500 text-lg">Webcam Feed</span>
-              </div>
+            {/* Gesture Detection Video Feed */}
+            <div className="bg-black rounded-lg aspect-video flex items-center justify-center w-full max-w-xl mb-6 mx-auto">
+              {gestureDetection ? (
+                <img
+                  src="http://localhost:8000/video_feed"
+                  alt="Gesture Video Feed"
+                  className="w-full h-full object-contain rounded-lg border-2 border-emerald-500"
+                  style={{ maxHeight: '320px', background: 'black' }}
+                  onError={() => setWebcamError('Could not load video feed')}
+                />
+              ) : (
+                <div className="text-center w-full">
+                  <Camera className="w-16 h-16 text-gray-600 mx-auto mb-2" />
+                  <span className="text-gray-500 text-lg">Webcam Feed</span>
+                </div>
+              )}
+              {webcamError && <div className="text-red-500 text-lg absolute">{webcamError}</div>}
+            </div>
+            {/* Current Gesture */}
+            <div className="bg-gray-800 rounded-lg p-6 text-center w-full max-w-md mx-auto mb-6">
+              <div className="text-emerald-400 font-bold text-2xl">{currentGesture}</div>
+              <div className="text-gray-400 text-lg mt-2">Confidence: {(gestureConfidence * 100).toFixed(1)}%</div>
             </div>
             {/* Controls */}
             <div className="flex space-x-2 my-4 w-full">

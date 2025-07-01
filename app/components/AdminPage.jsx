@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, Settings, Users, ChevronDown, Camera } from 'lucide-react';
 import { useApp } from './AppContext';
 import { apiService } from '../services/api';
@@ -19,6 +19,9 @@ const AdminPage = () => {
   });
   const [saved, setSaved] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [gestureConfidence, setGestureConfidence] = useState(0.0);
+  const [currentGesture, setCurrentGesture] = useState('No gesture detected');
+  const [webcamError, setWebcamError] = useState(null);
 
   // User management stats (replace with real data source if available)
   const totalUsers = 0;
@@ -49,6 +52,26 @@ const AdminPage = () => {
       setError('Failed to save match: ' + (err.message || err));
     }
   };
+
+  useEffect(() => {
+    if (!gestureDetection) return;
+    const ws = new window.WebSocket('ws://localhost:8000/ws/gesture');
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setCurrentGesture(data.gesture || 'No gesture detected');
+        setGestureConfidence(typeof data.confidence === 'number' ? data.confidence : 0.0);
+      } catch (e) {
+        setCurrentGesture('No gesture detected');
+        setGestureConfidence(0.0);
+      }
+    };
+    ws.onerror = () => {
+      setCurrentGesture('No gesture detected');
+      setGestureConfidence(0.0);
+    };
+    return () => ws.close();
+  }, [gestureDetection]);
 
   return (
     <div className="min-h-screen bg-black pt-16 px-4">
@@ -173,10 +196,26 @@ const AdminPage = () => {
             </div>
             {/* Webcam Feed Placeholder */}
             <div className="bg-black rounded-lg aspect-video flex items-center justify-center w-full max-w-xl mb-6 mx-auto">
-              <div className="text-center w-full">
-                <Camera className="w-16 h-16 text-gray-600 mx-auto mb-2" />
-                <span className="text-gray-500 text-lg">Webcam Feed</span>
-              </div>
+              {gestureDetection ? (
+                <img
+                  src="http://localhost:8000/video_feed"
+                  alt="Gesture Video Feed"
+                  className="w-full h-full object-contain rounded-lg border-2 border-emerald-500"
+                  style={{ maxHeight: '320px', background: 'black' }}
+                  onError={() => setWebcamError('Could not load video feed')}
+                />
+              ) : (
+                <div className="text-center w-full">
+                  <Camera className="w-16 h-16 text-gray-600 mx-auto mb-2" />
+                  <span className="text-gray-500 text-lg">Webcam Feed</span>
+                </div>
+              )}
+              {webcamError && <div className="text-red-500 text-lg absolute">{webcamError}</div>}
+            </div>
+            {/* Current Gesture */}
+            <div className="bg-gray-800 rounded-lg p-6 text-center w-full max-w-md mx-auto mb-6">
+              <div className="text-emerald-400 font-bold text-2xl">{currentGesture}</div>
+              <div className="text-gray-400 text-lg mt-2">Confidence: {(gestureConfidence * 100).toFixed(1)}%</div>
             </div>
             {/* Controls */}
             <div className="flex space-x-2 my-4 w-full">

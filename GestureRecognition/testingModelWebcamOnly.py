@@ -140,7 +140,7 @@ class GestureDetector:
     
     def run_generator(self):
         """Generator that yields gesture predictions continuously"""
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(1)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         
@@ -196,7 +196,7 @@ class GestureDetector:
     
     def run_generator_with_frame(self):
         """Generator that yields gesture, confidence, and annotated frame continuously"""
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(1)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         
@@ -272,7 +272,7 @@ class GestureDetector:
                 self.cap.release()
     
     def run(self):
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(1)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         
