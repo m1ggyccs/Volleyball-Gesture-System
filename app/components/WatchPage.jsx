@@ -4,7 +4,7 @@ import { Tv, Hand, Camera, BarChart } from 'lucide-react';
 import { useApp } from './AppContext';
 
 const WatchPage = () => {
-  const { gestureDetection, setGestureDetection, currentGesture, setCurrentGesture, currentMatch } = useApp();
+  const { gestureDetection, setGestureDetection, currentGesture, setCurrentGesture, currentMatch, eventLog } = useApp();
   const [focus, setFocus] = useState('match'); // 'match' or 'gesture'
 
   useEffect(() => {
@@ -36,25 +36,24 @@ const WatchPage = () => {
   return (
     <div className="pt-16 min-h-screen bg-black">
       <div className="max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-12 gap-6">
+        <div className="flex flex-row items-start gap-6">
+          {/* Tab Switcher Sidebar */}
+          <div className="flex flex-col items-start pt-0">
+            <button
+              className={`w-full px-4 py-3 mb-2 rounded-l-lg font-semibold transition-colors focus:outline-none text-left ${focus === 'match' ? 'bg-emerald-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+              onClick={() => setFocus('match')}
+            >
+              Match
+            </button>
+            <button
+              className={`w-full px-4 py-3 rounded-l-lg font-semibold transition-colors focus:outline-none text-left ${focus === 'gesture' ? 'bg-emerald-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+              onClick={() => setFocus('gesture')}
+            >
+              Gesture
+            </button>
+          </div>
           {/* Main Area with Focus Switcher */}
-          <div className="col-span-8">
-            {/* Focus Switcher */}
-            <div className="flex space-x-2 mb-4">
-              <button
-                className={`px-6 py-2 rounded-t-lg font-semibold transition-colors focus:outline-none ${focus === 'match' ? 'bg-emerald-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
-                onClick={() => setFocus('match')}
-              >
-                Match
-              </button>
-              <button
-                className={`px-6 py-2 rounded-t-lg font-semibold transition-colors focus:outline-none ${focus === 'gesture' ? 'bg-emerald-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
-                onClick={() => setFocus('gesture')}
-              >
-                Gesture Detection
-              </button>
-            </div>
-
+          <div className="flex-1 min-w-0">
             {/* Main Content Area */}
             {focus === 'match' ? (
               <>
@@ -69,23 +68,46 @@ const WatchPage = () => {
                     allowFullScreen
                   ></iframe>
                 </div>
-                {/* Match Info */}
-                <div className="bg-gray-900 rounded-lg p-6">
-                  <div className="flex justify-between items-center">
-                    <div className="text-left">
-                      <div className="text-2xl font-bold text-white">{currentMatch.title}</div>
-                      <div className="text-gray-400 text-sm">Duration: {currentMatch.duration}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-gray-400 text-sm">LIVE STREAM</div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                        <span className="text-emerald-400 text-sm">Live</span>
+                {/* Match Info - now shows title and scores only */}
+                <div className="bg-gray-900 rounded-lg p-6 mb-6">
+                  <div className="flex flex-col items-center">
+                    <div className="text-2xl font-bold text-white mb-2">{currentMatch.title}</div>
+                    <div className="flex items-center space-x-8 mb-4">
+                      <div className="flex flex-col items-center">
+                        <span className="text-lg font-semibold text-gray-300">{currentMatch.teamA}</span>
+                        <span className="text-3xl font-bold text-emerald-400">{currentMatch.scoreA}</span>
+                      </div>
+                      <span className="text-2xl font-bold text-gray-400">vs</span>
+                      <div className="flex flex-col items-center">
+                        <span className="text-lg font-semibold text-gray-300">{currentMatch.teamB}</span>
+                        <span className="text-3xl font-bold text-emerald-400">{currentMatch.scoreB}</span>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-emerald-400">{currentMatch.viewers}</div>
-                      <div className="text-gray-400 text-sm">Viewers</div>
+                    {/* Event/Call History Grid */}
+                    <div className="w-full mt-4">
+                      <div className="text-lg font-bold text-white mb-2">Call/Event History</div>
+                      {eventLog.length === 0 ? (
+                        <div className="text-gray-400 text-center py-4">No events yet.</div>
+                      ) : (
+                        <div className="grid grid-cols-4 gap-2 bg-gray-800 rounded-lg p-2 text-center text-gray-300 text-sm font-semibold">
+                          <div>Time</div>
+                          <div>Call</div>
+                          <div>Who Scored</div>
+                          <div>Score</div>
+                        </div>
+                      )}
+                      {eventLog.length > 0 && (
+                        <div className="divide-y divide-gray-700">
+                          {eventLog.map((event, idx) => (
+                            <div key={idx} className="grid grid-cols-4 gap-2 p-2 text-center items-center text-gray-200">
+                              <div>{event.time}</div>
+                              <div>{event.refCall}</div>
+                              <div>{event.whoScored}</div>
+                              <div>{event.scoreA} - {event.scoreB}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -106,17 +128,7 @@ const WatchPage = () => {
                     </div>
                   </div>
                   {/* Controls */}
-                  <div className="flex space-x-2 mb-6">
-                    <button
-                      onClick={toggleDetection}
-                      className="flex-1 py-3 px-8 bg-emerald-500 hover:bg-emerald-600 rounded font-medium transition-colors text-lg"
-                    >
-                      {gestureDetection ? 'Stop Detection' : 'Start Detection'}
-                    </button>
-                    <button className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded transition-colors text-lg">
-                      Settings
-                    </button>
-                  </div>
+                  {/* Controls removed as requested */}
                   {/* Status */}
                   <div className="flex items-center space-x-2 mb-4">
                     <div className={`w-3 h-3 rounded-full ${gestureDetection ? 'bg-emerald-400' : 'bg-red-400'}`}></div>
@@ -132,7 +144,7 @@ const WatchPage = () => {
           </div>
 
           {/* Sidebar (always visible, but swaps compact panel) */}
-          <div className="col-span-4 space-y-6">
+          <div className="w-[340px] flex-shrink-0 space-y-6">
             {focus === 'match' ? (
               // Compact Gesture Detection Panel
               <div className="bg-gray-900 rounded-lg p-6">
@@ -148,17 +160,7 @@ const WatchPage = () => {
                   </div>
                 </div>
                 {/* Controls */}
-                <div className="flex space-x-2 mb-4">
-                  <button
-                    onClick={toggleDetection}
-                    className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 rounded font-medium transition-colors"
-                  >
-                    {gestureDetection ? 'Stop Detection' : 'Start Detection'}
-                  </button>
-                  <button className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors">
-                    Settings
-                  </button>
-                </div>
+                {/* Controls removed as requested */}
                 {/* Status */}
                 <div className="flex items-center space-x-2 mb-4">
                   <div className={`w-2 h-2 rounded-full ${gestureDetection ? 'bg-emerald-400' : 'bg-red-400'}`}></div>
@@ -187,14 +189,20 @@ const WatchPage = () => {
                     allowFullScreen
                   ></iframe>
                 </div>
-                {/* Match Info */}
+                {/* Match Info - compact, title and scores only */}
                 <div className="text-center mb-2">
                   <div className="text-lg font-bold text-white">{currentMatch.title}</div>
-                  <div className="text-gray-400 text-sm">Duration: {currentMatch.duration}</div>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-emerald-400 text-sm">Live</span>
+                  <div className="flex items-center justify-center space-x-6 mt-2">
+                    <div className="flex flex-col items-center">
+                      <span className="text-sm text-gray-300">{currentMatch.teamA}</span>
+                      <span className="text-xl font-bold text-emerald-400">{currentMatch.scoreA}</span>
+                    </div>
+                    <span className="text-lg font-bold text-gray-400">vs</span>
+                    <div className="flex flex-col items-center">
+                      <span className="text-sm text-gray-300">{currentMatch.teamB}</span>
+                      <span className="text-xl font-bold text-emerald-400">{currentMatch.scoreB}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -207,28 +215,20 @@ const WatchPage = () => {
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Duration</span>
-                  <span className="text-white">1:23:45</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-gray-400">Total Points</span>
-                  <span className="text-white">68</span>
+                  <span className="text-white">{(currentMatch.scoreA || 0) + (currentMatch.scoreB || 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Aces</span>
-                  <span className="text-white">12</span>
+                  <span className="text-white">{typeof currentMatch.aces !== 'undefined' ? currentMatch.aces : 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Blocks</span>
-                  <span className="text-white">8</span>
+                  <span className="text-white">{typeof currentMatch.blocks !== 'undefined' ? currentMatch.blocks : 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Errors</span>
-                  <span className="text-white">15</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Viewers</span>
-                  <span className="text-white">1,246</span>
+                  <span className="text-white">{typeof currentMatch.errors !== 'undefined' ? currentMatch.errors : 0}</span>
                 </div>
               </div>
             </div>

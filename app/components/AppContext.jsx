@@ -26,8 +26,14 @@ export const AppProvider = ({ children }) => {
     title: 'Brazil vs Japan - FIVB World Championship',
     duration: '2:15:30',
     viewers: 1246,
-    live: true
+    live: true,
+    teamA: 'Brazil',
+    teamB: 'Japan',
+    scoreA: 0,
+    scoreB: 0,
+    setNumber: 1
   });
+  const [eventLog, setEventLog] = useState([]);
 
   const contextValue = {
     gestureDetection,
@@ -36,7 +42,9 @@ export const AppProvider = ({ children }) => {
     setCurrentGesture,
     matches,
     currentMatch,
-    setCurrentMatch
+    setCurrentMatch,
+    eventLog,
+    setEventLog
   };
 
   return (
