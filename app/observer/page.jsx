@@ -33,24 +33,8 @@ const ObserverPage = () => {
   const [webcamLoading, setWebcamLoading] = useState(false);
   const [lastProcessedGesture, setLastProcessedGesture] = useState("");
   const [autoScoreNotification, setAutoScoreNotification] = useState("");
-  const [autoScoringEnabled, setAutoScoringEnabled] = useState(true);
-
-  // Load auto-scoring preference from localStorage on component mount
-  useEffect(() => {
-    try {
-      const savedAutoScoring = localStorage.getItem('observerAutoScoring');
-      if (savedAutoScoring !== null) {
-        setAutoScoringEnabled(JSON.parse(savedAutoScoring));
-      }
-    } catch (error) {
-      console.error('Error loading auto-scoring preference:', error);
-    }
-  }, []);
-
-  // Save auto-scoring preference to localStorage
-  useEffect(() => {
-    localStorage.setItem('observerAutoScoring', JSON.stringify(autoScoringEnabled));
-  }, [autoScoringEnabled]);
+  // Use auto-scoring from currentMatch for real-time sync
+  const autoScoringEnabled = currentMatch.autoScoringEnabled !== undefined ? currentMatch.autoScoringEnabled : true;
 
   useEffect(() => {
     setVideoLoading(true);
@@ -306,7 +290,6 @@ const ObserverPage = () => {
                           <button
               onClick={() => {
                 const newValue = !autoScoringEnabled;
-                setAutoScoringEnabled(newValue);
                 if (isConnected) {
                   socketService.toggleAutoScoring(newValue);
                 }
