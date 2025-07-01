@@ -33,6 +33,7 @@ const ObserverPage = () => {
   const [webcamLoading, setWebcamLoading] = useState(false);
   const [lastProcessedGesture, setLastProcessedGesture] = useState("");
   const [autoScoreNotification, setAutoScoreNotification] = useState("");
+<<<<<<< HEAD
   const [autoScoringEnabled, setAutoScoringEnabled] = useState(true);
   const [gestureConfidence, setGestureConfidence] = useState(0.0);
   const [webcamError, setWebcamError] = useState(null);
@@ -53,6 +54,10 @@ const ObserverPage = () => {
   useEffect(() => {
     localStorage.setItem('observerAutoScoring', JSON.stringify(autoScoringEnabled));
   }, [autoScoringEnabled]);
+=======
+  // Use auto-scoring from currentMatch for real-time sync
+  const autoScoringEnabled = currentMatch.autoScoringEnabled !== undefined ? currentMatch.autoScoringEnabled : true;
+>>>>>>> 569d95cd7d0d64de453cb4abae3f1221a5855526
 
   useEffect(() => {
     setVideoLoading(true);
@@ -321,7 +326,6 @@ const ObserverPage = () => {
                           <button
               onClick={() => {
                 const newValue = !autoScoringEnabled;
-                setAutoScoringEnabled(newValue);
                 if (isConnected) {
                   socketService.toggleAutoScoring(newValue);
                 }
