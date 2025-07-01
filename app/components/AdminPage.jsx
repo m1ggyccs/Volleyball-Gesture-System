@@ -9,8 +9,6 @@ const AdminPage = () => {
   const [form, setForm] = React.useState({
     videoId: currentMatch.videoId,
     title: currentMatch.title,
-    duration: currentMatch.duration,
-    viewers: currentMatch.viewers,
     live: currentMatch.live,
     teamA: currentMatch.teamA || 'Team Alpha',
     teamB: currentMatch.teamB || 'Team Beta',
@@ -19,6 +17,12 @@ const AdminPage = () => {
     setNumber: currentMatch.setNumber || 1
   });
   const [saved, setSaved] = React.useState(false);
+
+  // User management stats (replace with real data source if available)
+  const totalUsers = 0;
+  const activeViewers = 0;
+  const adminCount = 0;
+  const newToday = 0;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -36,149 +40,121 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="pt-16 min-h-screen bg-black">
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-          <p className="text-gray-400">Manage matches, gestures, and user access</p>
-        </div>
-        {/* Video Row: Match and Gesture Detection */}
-        {/* Removed: Match Video and Gesture Detection panels, now on observer page */}
-        {/* Side-by-side Match and Gesture Detection Forms */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Match Details */}
-          <div className="bg-gray-900 rounded-lg p-6">
-            <div className="flex items-center space-x-2 mb-6">
-              <Upload className="w-6 h-6 text-emerald-400" />
-              <h2 className="text-2xl font-bold text-white">Match Details</h2>
-            </div>
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <label className="block text-gray-400 mb-2">YouTube Video ID</label>
-                <input
-                  type="text"
-                  name="videoId"
-                  value={form.videoId}
-                  onChange={handleChange}
-                  placeholder="e.g. dQw4w9WgXcQ"
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  required
-                />
+    <div className="min-h-screen bg-black pt-16 px-4">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <form onSubmit={handleSubmit} className="bg-gray-900 rounded-lg p-6">
+          <div className="mb-4">
+            <label className="block text-gray-400 mb-2">YouTube Video ID</label>
+            <input
+              type="text"
+              name="videoId"
+              value={form.videoId}
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+              placeholder="e.g. dQw4w9WgXcQ"
+            />
+            {form.videoId && (
+              <div className="mt-4 aspect-video rounded-lg overflow-hidden border border-gray-700">
+                <iframe
+                  src={`https://www.youtube.com/embed/${form.videoId}?autoplay=0&rel=0&modestbranding=1`}
+                  title="Match Video Preview"
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
               </div>
-              <div>
-                <label className="block text-gray-400 mb-2">Match Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="Championship Finals"
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-400 mb-2">Team A Name</label>
-                  <input
-                    type="text"
-                    name="teamA"
-                    value={form.teamA}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400 mb-2">Team B Name</label>
-                  <input
-                    type="text"
-                    name="teamB"
-                    value={form.teamB}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-400 mb-2">Team A Score</label>
-                  <input
-                    type="number"
-                    name="scoreA"
-                    value={form.scoreA}
-                    onChange={handleChange}
-                    min="0"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400 mb-2">Team B Score</label>
-                  <input
-                    type="number"
-                    name="scoreB"
-                    value={form.scoreB}
-                    onChange={handleChange}
-                    min="0"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-400 mb-2">Set Number</label>
-                  <input
-                    type="number"
-                    name="setNumber"
-                    value={form.setNumber}
-                    onChange={handleChange}
-                    min="1"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400 mb-2">Duration</label>
-                  <input
-                    type="text"
-                    name="duration"
-                    value={form.duration}
-                    onChange={handleChange}
-                    placeholder="e.g. 2:15:30"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-gray-400 mb-2">Viewers</label>
-                <input
-                  type="number"
-                  name="viewers"
-                  value={form.viewers}
-                  onChange={handleChange}
-                  min="0"
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  required
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  name="live"
-                  checked={form.live}
-                  onChange={handleChange}
-                  className="form-checkbox h-5 w-5 text-emerald-500"
-                  id="liveCheckbox"
-                />
-                <label htmlFor="liveCheckbox" className="text-gray-400">Live</label>
-              </div>
-              <button type="submit" className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-medium transition-colors">
-                Save Match
-              </button>
-              {saved && <div className="text-green-400 text-center mt-2">Match updated!</div>}
-            </form>
+            )}
           </div>
-          {/* Gesture Detection (placeholder for now) */}
-          <div className="bg-gray-900 rounded-lg p-6">
+          <div className="mb-4">
+            <label className="block text-gray-400 mb-2">Match Title</label>
+            <input
+              type="text"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-gray-400 mb-2">Team A Name</label>
+              <input
+                type="text"
+                name="teamA"
+                value={form.teamA}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-400 mb-2">Team B Name</label>
+              <input
+                type="text"
+                name="teamB"
+                value={form.teamB}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-gray-400 mb-2">Team A Score</label>
+              <input
+                type="number"
+                name="scoreA"
+                value={form.scoreA}
+                onChange={handleChange}
+                min="0"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-400 mb-2">Team B Score</label>
+              <input
+                type="number"
+                name="scoreB"
+                value={form.scoreB}
+                onChange={handleChange}
+                min="0"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-gray-400 mb-2">Set Number</label>
+              <input
+                type="number"
+                name="setNumber"
+                value={form.setNumber}
+                onChange={handleChange}
+                min="1"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              name="live"
+              checked={form.live}
+              onChange={handleChange}
+              className="mr-2"
+            />
+            <label className="text-gray-400">Live</label>
+          </div>
+          <button
+            type="submit"
+            className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-semibold transition-colors"
+          >
+            Save Match
+          </button>
+          {saved && <div className="text-emerald-400 mt-2 text-center">Match saved!</div>}
+        </form>
+        <div>
+          <div className="bg-gray-900 rounded-lg p-6 mb-8">
             <div className="flex items-center space-x-2 mb-6">
               <Settings className="w-6 h-6 text-emerald-400" />
               <h2 className="text-2xl font-bold text-white">Gesture Detection</h2>
@@ -208,29 +184,29 @@ const AdminPage = () => {
               <span className="text-lg text-gray-400">{gestureDetection ? 'Active' : 'Inactive'}</span>
             </div>
           </div>
-        </div>
-        {/* User Management below */}
-        <div className="bg-gray-900 rounded-lg p-6 lg:col-span-2 mt-8">
-          <div className="flex items-center space-x-2 mb-6">
-            <Users className="w-6 h-6 text-emerald-400" />
-            <h2 className="text-2xl font-bold text-white">User Management</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">1,247</div>
-              <div className="text-gray-400">Total Users</div>
+          {/* User Management below */}
+          <div className="bg-gray-900 rounded-lg p-6 lg:col-span-2 mt-8">
+            <div className="flex items-center space-x-2 mb-6">
+              <Users className="w-6 h-6 text-emerald-400" />
+              <h2 className="text-2xl font-bold text-white">User Management</h2>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-400">89</div>
-              <div className="text-gray-400">Active Viewers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-400">3</div>
-              <div className="text-gray-400">Admins</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400">15</div>
-              <div className="text-gray-400">New Today</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">{totalUsers}</div>
+                <div className="text-gray-400">Total Users</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-emerald-400">{activeViewers}</div>
+                <div className="text-gray-400">Active Viewers</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-400">{adminCount}</div>
+                <div className="text-gray-400">Admins</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-400">{newToday}</div>
+                <div className="text-gray-400">New Today</div>
+              </div>
             </div>
           </div>
         </div>
