@@ -48,6 +48,9 @@ class GestureDetector:
         self.prediction_buffer = deque(maxlen=5)
         self.confidence_threshold = 0.7
         
+        # Webcam capture
+        self.cap = None
+        
     def extract_hand_landmarks(self, image, hand_bbox=None):
         rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
@@ -134,6 +137,139 @@ class GestureDetector:
                     return GESTURE_CLASSES[best_idx], best_conf
         
         return None, 0.0
+    
+    def run_generator(self):
+        """Generator that yields gesture predictions continuously"""
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        
+        if not self.cap.isOpened():
+            print("❌ Could not open webcam")
+            return
+        
+        print("🎥 Starting gesture detection generator...")
+        
+        try:
+            while True:
+                ret, frame = self.cap.read()
+                if not ret:
+                    print("❌ Could not read frame")
+                    break
+                
+                # Flip frame horizontally for mirror effect
+                frame = cv2.flip(frame, 1)
+                
+                try:
+                    # YOLO detection for person/hand detection
+                    yolo_results = self.yolo_model(frame, verbose=False)
+                    bbox = None
+                    if len(yolo_results[0].boxes) > 0:
+                        bbox = yolo_results[0].boxes[0].xyxy[0].cpu().numpy().astype(int)
+                    
+                    # Extract features
+                    hand_features = self.extract_hand_landmarks(frame, bbox)
+                    pose_features = self.extract_pose_landmarks(frame)
+                    combined_features = np.concatenate([hand_features, pose_features])
+                    
+                    # Add to buffer
+                    self.feature_buffer.append(combined_features)
+                    
+                    # Predict gesture
+                    gesture, confidence = self.predict_gesture()
+                    
+                    # Yield the result
+                    yield gesture, confidence
+                    
+                except Exception as e:
+                    print(f"⚠️ Error processing frame: {e}")
+                    yield None, 0.0
+                
+                # Small delay to prevent overwhelming the system
+                time.sleep(0.05)
+                
+        except KeyboardInterrupt:
+            print("🛑 Gesture detection stopped by user")
+        finally:
+            if self.cap:
+                self.cap.release()
+    
+    def run_generator_with_frame(self):
+        """Generator that yields gesture, confidence, and annotated frame continuously"""
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        
+        if not self.cap.isOpened():
+            print("❌ Could not open webcam")
+            return
+        
+        print("🎥 Starting gesture detection generator with frame...")
+        
+        try:
+            while True:
+                ret, frame = self.cap.read()
+                if not ret:
+                    print("❌ Could not read frame")
+                    break
+                
+                # Flip frame horizontally for mirror effect
+                frame = cv2.flip(frame, 1)
+                annotated_frame = frame.copy()
+                try:
+                    # YOLO detection for person/hand detection
+                    yolo_results = self.yolo_model(frame, verbose=False)
+                    bbox = None
+                    if len(yolo_results[0].boxes) > 0:
+                        bbox = yolo_results[0].boxes[0].xyxy[0].cpu().numpy().astype(int)
+                        # Draw bounding box
+                        cv2.rectangle(annotated_frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+                    
+                    # Extract features
+                    hand_features = self.extract_hand_landmarks(frame, bbox)
+                    pose_features = self.extract_pose_landmarks(frame)
+                    combined_features = np.concatenate([hand_features, pose_features])
+                    
+                    # Add to buffer
+                    self.feature_buffer.append(combined_features)
+                    
+                    # Draw landmarks for visualization
+                    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    hands_results = self.hands.process(rgb_frame)
+                    pose_results = self.pose.process(rgb_frame)
+                    self.draw_landmarks(annotated_frame, hands_results, pose_results)
+                    
+                    # Predict gesture
+                    gesture, confidence = self.predict_gesture()
+                    
+                    # Display information on frame
+                    h, w, _ = annotated_frame.shape
+                    buffer_status = f"Buffer: {len(self.feature_buffer)}/{SEQUENCE_LENGTH}"
+                    cv2.putText(annotated_frame, buffer_status, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+                    if gesture and confidence > self.confidence_threshold:
+                        prediction_text = f"Gesture: {gesture}"
+                        confidence_text = f"Confidence: {confidence:.2f}"
+                        cv2.rectangle(annotated_frame, (10, 60), (500, 120), (0, 255, 0), -1)
+                        cv2.putText(annotated_frame, prediction_text, (15, 85), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
+                        cv2.putText(annotated_frame, confidence_text, (15, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                    else:
+                        cv2.putText(annotated_frame, "Detecting...", (10, 85), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+                    
+                    # Yield the result
+                    yield gesture, confidence, annotated_frame
+                    
+                except Exception as e:
+                    print(f"⚠️ Error processing frame: {e}")
+                    yield None, 0.0, annotated_frame
+                
+                # Small delay to prevent overwhelming the system
+                time.sleep(0.05)
+                
+        except KeyboardInterrupt:
+            print("🛑 Gesture detection stopped by user")
+        finally:
+            if self.cap:
+                self.cap.release()
     
     def run(self):
         cap = cv2.VideoCapture(0)
@@ -236,44 +372,11 @@ class GestureDetector:
         cv2.destroyAllWindows()
         print("👋 Gesture detection stopped")
 
-    def run_generator(self):
-        cap = cv2.VideoCapture(0)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        if not cap.isOpened():
-            print("❌ Could not open webcam")
-            yield (None, 0.0)
-            return
-        print("🎥 Starting gesture detection (generator mode)...")
-        print("📋 Gestures to detect:", GESTURE_CLASSES)
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                print("❌ Could not read frame")
-                yield (None, 0.0)
-                break
-            frame = cv2.flip(frame, 1)
-            try:
-                yolo_results = self.yolo_model(frame, verbose=False)
-                bbox = None
-                if len(yolo_results[0].boxes) > 0:
-                    bbox = yolo_results[0].boxes[0].xyxy[0].cpu().numpy().astype(int)
-                hand_features = self.extract_hand_landmarks(frame, bbox)
-                pose_features = self.extract_pose_landmarks(frame)
-                combined_features = np.concatenate([hand_features, pose_features])
-                self.feature_buffer.append(combined_features)
-                gesture, confidence = self.predict_gesture()
-                yield (gesture, confidence)
-            except Exception as e:
-                print(f"⚠️ Error processing frame: {e}")
-                yield (None, 0.0)
-        cap.release()
-
 def main():
-    # Paths to your models
+    # Paths to your models - updated to use relative paths
     model_path = "TwoModels/gesture_model.h5"
     yolo_path = "TwoModels/best.pt"
-    
+
     # Check if models exist
     import os
     if not os.path.exists(model_path):

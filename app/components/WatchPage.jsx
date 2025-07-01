@@ -1,11 +1,14 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Tv, Hand, Camera, BarChart } from 'lucide-react';
 import { useApp } from './AppContext';
 
 const WatchPage = () => {
   const { gestureDetection, setGestureDetection, currentGesture, setCurrentGesture, currentMatch, eventLog } = useApp();
   const [focus, setFocus] = useState('match'); // 'match' or 'gesture'
+  const [gestureConfidence, setGestureConfidence] = useState(0.0);
+  const videoRef = useRef(null);
+  const [webcamError, setWebcamError] = useState(null);
 
   useEffect(() => {
     if (!gestureDetection) return;
@@ -14,11 +17,16 @@ const WatchPage = () => {
       try {
         const data = JSON.parse(event.data);
         setCurrentGesture(data.gesture || 'No gesture detected');
+        setGestureConfidence(typeof data.confidence === 'number' ? data.confidence : 0.0);
       } catch (e) {
         setCurrentGesture('No gesture detected');
+        setGestureConfidence(0.0);
       }
     };
-    ws.onerror = () => setCurrentGesture('No gesture detected');
+    ws.onerror = () => {
+      setCurrentGesture('No gesture detected');
+      setGestureConfidence(0.0);
+    };
     return () => ws.close();
   }, [gestureDetection, setCurrentGesture]);
 
@@ -122,10 +130,21 @@ const WatchPage = () => {
                   </div>
                   {/* Webcam Feed */}
                   <div className="bg-black rounded-lg aspect-video flex items-center justify-center w-full max-w-xl mb-6">
-                    <div className="text-center w-full">
-                      <Camera className="w-16 h-16 text-gray-600 mx-auto mb-2" />
-                      <span className="text-gray-500 text-lg">Webcam Feed</span>
-                    </div>
+                    {gestureDetection && focus === 'gesture' ? (
+                      <img
+                        src="http://localhost:8000/video_feed"
+                        alt="Gesture Video Feed"
+                        className="w-full h-full object-contain rounded-lg border-2 border-emerald-500"
+                        style={{ maxHeight: '320px', background: 'black' }}
+                        onError={() => setWebcamError('Could not load video feed')}
+                      />
+                    ) : (
+                      <div className="text-center w-full">
+                        <Camera className="w-16 h-16 text-gray-600 mx-auto mb-2" />
+                        <span className="text-gray-500 text-lg">Webcam Feed</span>
+                      </div>
+                    )}
+                    {webcamError && <div className="text-red-500 text-lg absolute">{webcamError}</div>}
                   </div>
                   {/* Controls */}
                   {/* Controls removed as requested */}
@@ -137,6 +156,7 @@ const WatchPage = () => {
                   {/* Current Gesture */}
                   <div className="bg-gray-800 rounded-lg p-6 text-center w-full max-w-md">
                     <div className="text-emerald-400 font-bold text-2xl">{currentGesture}</div>
+                    <div className="text-gray-400 text-lg mt-2">Confidence: {(gestureConfidence * 100).toFixed(1)}%</div>
                   </div>
                 </div>
               </>
@@ -154,10 +174,21 @@ const WatchPage = () => {
                 </div>
                 {/* Webcam Feed */}
                 <div className="bg-black rounded-lg aspect-video flex items-center justify-center mb-4">
-                  <div className="text-center">
-                    <Camera className="w-12 h-12 text-gray-600 mx-auto mb-2" />
-                    <span className="text-gray-500 text-sm">Webcam Feed</span>
-                  </div>
+                  {gestureDetection && focus === 'match' ? (
+                    <img
+                      src="http://localhost:8000/video_feed"
+                      alt="Gesture Video Feed"
+                      className="w-full h-full object-contain rounded-lg border-2 border-emerald-500"
+                      style={{ maxHeight: '120px', background: 'black' }}
+                      onError={() => setWebcamError('Could not load video feed')}
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <Camera className="w-12 h-12 text-gray-600 mx-auto mb-2" />
+                      <span className="text-gray-500 text-sm">Webcam Feed</span>
+                    </div>
+                  )}
+                  {webcamError && <div className="text-red-500 text-sm absolute">{webcamError}</div>}
                 </div>
                 {/* Controls */}
                 {/* Controls removed as requested */}
@@ -169,6 +200,7 @@ const WatchPage = () => {
                 {/* Current Gesture */}
                 <div className="bg-gray-800 rounded-lg p-4 text-center">
                   <div className="text-emerald-400 font-bold text-lg">{currentGesture}</div>
+                  <div className="text-gray-400 text-sm mt-1">Confidence: {(gestureConfidence * 100).toFixed(1)}%</div>
                 </div>
               </div>
             ) : (
