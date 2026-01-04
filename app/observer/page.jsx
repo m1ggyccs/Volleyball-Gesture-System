@@ -33,31 +33,20 @@ const ObserverPage = () => {
   const [webcamLoading, setWebcamLoading] = useState(false);
   const [lastProcessedGesture, setLastProcessedGesture] = useState("");
   const [autoScoreNotification, setAutoScoreNotification] = useState("");
-<<<<<<< HEAD
-  const [autoScoringEnabled, setAutoScoringEnabled] = useState(true);
   const [gestureConfidence, setGestureConfidence] = useState(0.0);
   const [webcamError, setWebcamError] = useState(null);
-
-  // Load auto-scoring preference from localStorage on component mount
+  
+  // Use auto-scoring from currentMatch for real-time sync, with local state for UI responsiveness
+  const [autoScoringEnabled, setAutoScoringEnabled] = useState(
+    currentMatch.autoScoringEnabled !== undefined ? currentMatch.autoScoringEnabled : true
+  );
+  
+  // Sync auto-scoring with currentMatch changes
   useEffect(() => {
-    try {
-      const savedAutoScoring = localStorage.getItem('observerAutoScoring');
-      if (savedAutoScoring !== null) {
-        setAutoScoringEnabled(JSON.parse(savedAutoScoring));
-      }
-    } catch (error) {
-      console.error('Error loading auto-scoring preference:', error);
+    if (currentMatch.autoScoringEnabled !== undefined) {
+      setAutoScoringEnabled(currentMatch.autoScoringEnabled);
     }
-  }, []);
-
-  // Save auto-scoring preference to localStorage
-  useEffect(() => {
-    localStorage.setItem('observerAutoScoring', JSON.stringify(autoScoringEnabled));
-  }, [autoScoringEnabled]);
-=======
-  // Use auto-scoring from currentMatch for real-time sync
-  const autoScoringEnabled = currentMatch.autoScoringEnabled !== undefined ? currentMatch.autoScoringEnabled : true;
->>>>>>> 569d95cd7d0d64de453cb4abae3f1221a5855526
+  }, [currentMatch.autoScoringEnabled]);
 
   useEffect(() => {
     setVideoLoading(true);
