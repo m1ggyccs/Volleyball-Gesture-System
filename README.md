@@ -47,7 +47,7 @@ Volleyball-Gesture-System/
 ### 1. Clone the Repository
 
 ```bash
-git clone [repository url](https://github.com/m1ggyccs/Volleyball-Gesture-System)
+git clone https://github.com/m1ggyccs/Volleyball-Gesture-System
 cd Volleyball-Gesture-System
 ```
 
